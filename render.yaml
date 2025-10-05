@@ -4,14 +4,7 @@ services:
     name: financial-statement-app
     runtime: python
     plan: free
-    buildCommand: |
-      pip install -r requirements.txt &&
-      python download_corp_code.py &&
-      python init_db.py &&
-      cd frontend &&
-      npm install &&
-      npm run build &&
-      cd ..
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: python backend/main.py
     envVars:
       - key: DART_API_KEY
@@ -20,8 +13,6 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: NODE_VERSION
-        value: 18
       - key: PORT
         value: 8000
     healthCheckPath: /
