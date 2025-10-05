@@ -1,18 +1,15 @@
 services:
-  # 백엔드 + 프론트엔드 통합 서비스
+  # 백엔드 + 프론트엔드 통합 서비스 (Docker)
   - type: web
     name: financial-statement-app
-    runtime: python
+    runtime: docker
     plan: free
-    buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: python backend/main.py
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DART_API_KEY
         sync: false
       - key: GEMINI_API_KEY
         sync: false
-      - key: PYTHON_VERSION
-        value: 3.11.0
       - key: PORT
         value: 8000
     healthCheckPath: /
