@@ -200,8 +200,50 @@ function FinancialStatementViewer({ company }) {
     return { bs: bsData, is: isData, yearLabels }
   }
 
+  // 재무상태표 박스 시각화를 위한 데이터 준비
+  const prepareBalanceSheetBoxData = () => {
+    if (!data) return null
+
+    const cfsData = data.filter(item => item.fs_div === 'CFS' && item.sj_div === 'BS')
+    
+    const getAmount = (accountName) => {
+      const item = cfsData.find(d => d.account_nm === accountName)
+      if (!item) return 0
+      const amountStr = item.thstrm_amount || '0'
+      return parseInt(amountStr.replace(/,/g, '')) || 0
+    }
+
+    const 자산총계 = getAmount('자산총계')
+    const 유동자산 = getAmount('유동자산')
+    const 비유동자산 = getAmount('비유동자산')
+    const 부채총계 = getAmount('부채총계')
+    const 유동부채 = getAmount('유동부채')
+    const 비유동부채 = getAmount('비유동부채')
+    const 자본총계 = getAmount('자본총계')
+
+    const 총계 = 자산총계
+
+    return {
+      자산총계,
+      유동자산,
+      비유동자산,
+      부채총계,
+      유동부채,
+      비유동부채,
+      자본총계,
+      총계,
+      // 비율 계산 (0-100%)
+      유동자산비율: 총계 > 0 ? (유동자산 / 총계 * 100) : 0,
+      비유동자산비율: 총계 > 0 ? (비유동자산 / 총계 * 100) : 0,
+      유동부채비율: 총계 > 0 ? (유동부채 / 총계 * 100) : 0,
+      비유동부채비율: 총계 > 0 ? (비유동부채 / 총계 * 100) : 0,
+      자본총계비율: 총계 > 0 ? (자본총계 / 총계 * 100) : 0,
+    }
+  }
+
   const chartData = prepareChartData()
   const financialRatios = calculateFinancialRatios()
+  const balanceSheetBoxData = prepareBalanceSheetBoxData()
 
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear()
@@ -482,6 +524,82 @@ function FinancialStatementViewer({ company }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
+          {/* 재무상태표 박스 시각화 */}
+          {balanceSheetBoxData && (
+            <div className="chart-section">
+              <h3>⚖️ 재무상태표 구조 (자산 = 부채 + 자본)</h3>
+              <div className="balance-sheet-box-container">
+                {/* 좌측: 자산 */}
+                <div className="balance-box assets-box">
+                  <div className="box-header">
+                    <h4>자산</h4>
+                    <span className="box-total">{formatAmountWithUnit(balanceSheetBoxData.자산총계.toString())}</span>
+                  </div>
+                  <div className="box-content">
+                    {/* 유동자산 */}
+                    <div 
+                      className="box-item current-assets"
+                      style={{ height: `${balanceSheetBoxData.유동자산비율}%` }}
+                    >
+                      <div className="item-label">유동자산</div>
+                      <div className="item-amount">{formatAmountWithUnit(balanceSheetBoxData.유동자산.toString())}</div>
+                      <div className="item-percent">{balanceSheetBoxData.유동자산비율.toFixed(1)}%</div>
+                    </div>
+                    {/* 비유동자산 */}
+                    <div 
+                      className="box-item non-current-assets"
+                      style={{ height: `${balanceSheetBoxData.비유동자산비율}%` }}
+                    >
+                      <div className="item-label">비유동자산</div>
+                      <div className="item-amount">{formatAmountWithUnit(balanceSheetBoxData.비유동자산.toString())}</div>
+                      <div className="item-percent">{balanceSheetBoxData.비유동자산비율.toFixed(1)}%</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 등호 */}
+                <div className="balance-equals">=</div>
+
+                {/* 우측: 부채 + 자본 */}
+                <div className="balance-box liabilities-equity-box">
+                  <div className="box-header">
+                    <h4>부채 + 자본</h4>
+                    <span className="box-total">{formatAmountWithUnit((balanceSheetBoxData.부채총계 + balanceSheetBoxData.자본총계).toString())}</span>
+                  </div>
+                  <div className="box-content">
+                    {/* 유동부채 */}
+                    <div 
+                      className="box-item current-liabilities"
+                      style={{ height: `${balanceSheetBoxData.유동부채비율}%` }}
+                    >
+                      <div className="item-label">유동부채</div>
+                      <div className="item-amount">{formatAmountWithUnit(balanceSheetBoxData.유동부채.toString())}</div>
+                      <div className="item-percent">{balanceSheetBoxData.유동부채비율.toFixed(1)}%</div>
+                    </div>
+                    {/* 비유동부채 */}
+                    <div 
+                      className="box-item non-current-liabilities"
+                      style={{ height: `${balanceSheetBoxData.비유동부채비율}%` }}
+                    >
+                      <div className="item-label">비유동부채</div>
+                      <div className="item-amount">{formatAmountWithUnit(balanceSheetBoxData.비유동부채.toString())}</div>
+                      <div className="item-percent">{balanceSheetBoxData.비유동부채비율.toFixed(1)}%</div>
+                    </div>
+                    {/* 자본 */}
+                    <div 
+                      className="box-item equity"
+                      style={{ height: `${balanceSheetBoxData.자본총계비율}%` }}
+                    >
+                      <div className="item-label">자본총계</div>
+                      <div className="item-amount">{formatAmountWithUnit(balanceSheetBoxData.자본총계.toString())}</div>
+                      <div className="item-percent">{balanceSheetBoxData.자본총계비율.toFixed(1)}%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* 손익계산서 */}
           <div className="chart-section">
