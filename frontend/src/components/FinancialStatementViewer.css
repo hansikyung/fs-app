@@ -431,175 +431,174 @@ td.account-name {
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
 
 .explanation-text {
-  line-height: 1.8;
-  color: #000000;
-  font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
+  line-height: 1.9;
+  color: #1a1a1a;
+  font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
 }
 
 .explanation-text p {
-  margin-bottom: 12px;
-  color: #000000;
-  font-size: 12px;
-  font-weight: 700;
+  margin-bottom: 14px;
+  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
 }
 
 .explanation-text p:last-child {
   margin-bottom: 0;
 }
 
-/* AI 설명 섹션 박스 - 맥킨지 스타일 */
+/* AI 설명 섹션 박스 - 맥킨지 표 스타일 */
 .ai-section-box {
   background: #ffffff;
-  border: 1px solid #d0d0d0;
-  padding: 24px 28px;
-  margin: 20px 0;
+  border: 1px solid #000000;
+  margin: 16px 0;
   border-radius: 0;
   box-shadow: none;
 }
 
 .ai-section-title {
-  font-size: 16px;
-  font-weight: 800;
-  color: #000000;
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #000000;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-.ai-section-title .icon {
-  font-size: 16px;
-}
-
-/* 상태 뱃지 - 단순화 */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 0;
-  font-weight: 700;
-  font-size: 12px;
-  margin: 6px 4px;
-  border: 1px solid;
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-.status-badge.healthy {
-  background: #ffffff;
-  color: #059669;
-  border-color: #059669;
-}
-
-.status-badge.caution {
-  background: #ffffff;
-  color: #d97706;
-  border-color: #d97706;
-}
-
-.status-badge.warning {
-  background: #ffffff;
-  color: #dc2626;
-  border-color: #dc2626;
-}
-
-/* 키워드 강조 - 최소화 */
-.keyword-highlight {
-  color: #000000;
-  font-weight: 800;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  border-bottom: 2px solid #000000;
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-.keyword-amount {
-  color: #000000;
-  font-weight: 800;
-  font-family: 'Nanum Gothic', sans-serif;
-  background: #f5f5f5;
-  padding: 2px 6px;
-}
-
-/* 용어 설명 박스 - 깔끔하게 */
-.term-box {
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
-  padding: 16px 20px;
-  margin: 12px 0;
-  border-radius: 0;
-  border-left: 3px solid #000000;
-}
-
-.term-box .term-name {
-  font-weight: 800;
-  color: #000000;
-  font-size: 13px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-.term-box .term-desc {
-  color: #404040;
-  font-size: 12px;
-  line-height: 1.7;
-  margin-left: 0;
-  font-weight: 400;
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-/* 공식 박스 - 단순화 */
-.formula-box {
-  background: #f8f8f8;
-  border: 1px solid #c0c0c0;
-  padding: 12px 16px;
-  margin: 12px 0;
-  border-radius: 0;
-  font-family: 'Nanum Gothic', monospace;
-  font-weight: 700;
-  color: #000000;
-  text-align: center;
-  font-size: 12px;
-}
-
-/* 리스트 스타일 - 최소화 */
-.ai-list-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 8px 0;
-  padding: 6px 0;
-  color: #000000;
-  font-family: 'Nanum Gothic', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.ai-list-item .bullet {
   font-size: 14px;
-  margin-top: 2px;
-  min-width: 18px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0;
+  padding: 12px 16px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #000000;
+  text-align: left;
+  font-family: 'Nanum Gothic', sans-serif;
 }
 
-.ai-list-item.positive .bullet {
-  color: #059669;
+.ai-section-content {
+  padding: 16px 20px;
+  text-align: left;
 }
 
-.ai-list-item.negative .bullet {
-  color: #dc2626;
+/* 맥킨지 표 스타일 */
+.mckinsey-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-family: 'Nanum Gothic', sans-serif;
 }
 
-.ai-list-item.neutral .bullet {
-  color: #6b7280;
+.mckinsey-table th {
+  background: #f0f0f0;
+  border: 1px solid #000000;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000000;
+}
+
+.mckinsey-table td {
+  border: 1px solid #d0d0d0;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: #1a1a1a;
+  vertical-align: top;
+}
+
+.mckinsey-table tr:hover td {
+  background: #fafafa;
+}
+
+/* 강조 박스 */
+.highlight-box {
+  background: #f8f8f8;
+  border: 1px solid #000000;
+  padding: 14px 16px;
+  margin: 12px 0;
+  text-align: left;
+  font-family: 'Nanum Gothic', sans-serif;
+}
+
+.highlight-box-title {
+  font-weight: 800;
+  font-size: 13px;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+.highlight-box-content {
+  font-weight: 400;
+  font-size: 12px;
+  color: #1a1a1a;
+  line-height: 1.8;
+}
+
+/* BOLD 텍스트 */
+.bold-text {
+  font-weight: 800;
+  color: #000000;
+}
+
+/* 구분선 */
+.divider-line {
+  border-top: 1px solid #d0d0d0;
+  margin: 16px 0;
+}
+
+/* 리스트 항목 - 맥킨지 스타일 */
+.mckinsey-list {
+  margin: 12px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.mckinsey-list-item {
+  padding: 8px 0;
+  padding-left: 20px;
+  position: relative;
+  font-size: 12px;
+  color: #1a1a1a;
+  text-align: left;
+  line-height: 1.7;
+}
+
+.mckinsey-list-item:before {
+  content: "■";
+  position: absolute;
+  left: 0;
+  font-size: 8px;
+  color: #000000;
+}
+
+/* 투자 등급 뱃지 */
+.investment-grade {
+  display: inline-block;
+  padding: 6px 16px;
+  border: 2px solid #000000;
+  background: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  color: #000000;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.investment-grade.buy {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.investment-grade.hold {
+  background: #fff3e0;
+  border-color: #ef6c00;
+  color: #ef6c00;
+}
+
+.investment-grade.sell {
+  background: #ffebee;
+  border-color: #c62828;
+  color: #c62828;
 }
 
 /* 섹션 구분을 위한 여백 */

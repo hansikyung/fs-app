@@ -21,7 +21,7 @@ function FinancialStatementViewer({ company }) {
   const [investmentAnalysis, setInvestmentAnalysis] = useState(null)
   const [investmentLoading, setInvestmentLoading] = useState(false)
 
-  // AI 설명 텍스트를 파싱하여 스타일이 적용된 React 요소로 변환
+  // AI 설명 텍스트를 맥킨지 스타일로 파싱
   const parseAIExplanation = (text) => {
     if (!text) return null
 
@@ -29,114 +29,162 @@ function FinancialStatementViewer({ company }) {
     const elements = []
     let currentSection = null
     let sectionContent = []
+    let tableData = null
+    let listItems = []
 
     const flushSection = () => {
       if (currentSection && sectionContent.length > 0) {
         elements.push(
           <div key={elements.length} className="ai-section-box">
             <div className="ai-section-title">
-              <span className="icon">{currentSection.icon}</span>
               {currentSection.title}
             </div>
-            {sectionContent.map((content, idx) => (
-              <div key={idx}>{content}</div>
-            ))}
+            <div className="ai-section-content">
+              {sectionContent.map((content, idx) => (
+                <div key={idx}>{content}</div>
+              ))}
+            </div>
           </div>
         )
         sectionContent = []
       }
     }
 
+    const flushTable = () => {
+      if (tableData && tableData.rows.length > 0) {
+        sectionContent.push(
+          <table key={`table-${sectionContent.length}`} className="mckinsey-table">
+            <thead>
+              <tr>
+                {tableData.headers.map((header, idx) => (
+                  <th key={idx}>{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.rows.map((row, ridx) => (
+                <tr key={ridx}>
+                  {row.map((cell, cidx) => (
+                    <td key={cidx}>{parseInlineStyles(cell)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+        tableData = null
+      }
+    }
+
+    const flushList = () => {
+      if (listItems.length > 0) {
+        sectionContent.push(
+          <ul key={`list-${sectionContent.length}`} className="mckinsey-list">
+            {listItems.map((item, idx) => (
+              <li key={idx} className="mckinsey-list-item">
+                {parseInlineStyles(item)}
+              </li>
+            ))}
+          </ul>
+        )
+        listItems = []
+      }
+    }
+
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim()
       
-      // 빈 줄 무시
+      // 빈 줄 및 구분선 무시
       if (line === '' || line.match(/^━+$/)) {
         continue
       }
 
-      // 섹션 타이틀 감지 (이모지 + 숫자. 형식)
-      const sectionMatch = line.match(/^([📌💰📈🔍💡📊])?\s*(\d+\.\s*)(.+)/)
+      // 이모티콘 제거
+      line = line.replace(/[📌💰📈🔍💡📊🟢🟡🔴✅❗❌📝↑↓→]/g, '').trim()
+
+      // 섹션 타이틀 감지
+      const sectionMatch = line.match(/^(\d+\.)\s*(.+)/)
       if (sectionMatch) {
+        flushList()
+        flushTable()
         flushSection()
-        const icon = sectionMatch[1] || '📌'
-        const title = sectionMatch[3]
-        currentSection = { icon, title }
+        currentSection = { title: sectionMatch[2] }
         continue
       }
 
-      // 상태 뱃지 (🟢🟡🔴)
-      if (line.match(/[🟢🟡🔴]/)) {
-        let badgeClass = 'healthy'
-        if (line.includes('🟡')) badgeClass = 'caution'
-        if (line.includes('🔴')) badgeClass = 'warning'
+      // 강점/약점 표 감지 (투자 포인트, 강점, 약점)
+      if (line.match(/^\*\*투자 포인트\*\*:/) || line.match(/^투자 포인트:/)) {
+        flushList()
+        flushTable()
+        tableData = {
+          headers: ['구분', '내용'],
+          rows: []
+        }
+        continue
+      }
+
+      // 표 데이터 수집 (강점/약점)
+      if (tableData && (line.match(/^강점/) || line.match(/^약점/) || line.match(/^리스크/))) {
+        const match = line.match(/^(강점|약점|리스크)\s*(.+)/)
+        if (match) {
+          const type = match[1]
+          const content = match[2].replace(/[:\s]/g, '').trim()
+          tableData.rows.push([type, content])
+        }
+        continue
+      }
+
+      // 리스트 항목 감지
+      const listMatch = line.match(/^[-*]\s*(.+)/)
+      if (listMatch) {
+        flushTable()
+        listItems.push(listMatch[1])
+        continue
+      }
+
+      // 투자 등급 감지
+      const gradeMatch = line.match(/\*\*투자 등급\*\*:\s*(매수|보유|매도)/)
+      if (gradeMatch) {
+        flushList()
+        flushTable()
+        const grade = gradeMatch[1]
+        let gradeClass = 'hold'
+        if (grade === '매수') gradeClass = 'buy'
+        if (grade === '매도') gradeClass = 'sell'
         
-        const cleanLine = line.replace(/[🟢🟡🔴]/g, '').trim()
         sectionContent.push(
-          <div key={`badge-${i}`} className={`status-badge ${badgeClass}`}>
-            {line.match(/[🟢🟡🔴]/)[0]} {cleanLine}
+          <div key={`grade-${i}`} className={`investment-grade ${gradeClass}`}>
+            투자 등급: {grade}
           </div>
         )
         continue
       }
 
-      // 공식 (=, ÷, ×, % 포함)
-      if (line.match(/[=÷×%]/) && line.match(/\*\*.*?\*\*/)) {
+      // 강조 박스 (목표가, 전략 등)
+      if (line.match(/\*\*(목표|전략|리스크)\*\*/)) {
+        flushList()
+        flushTable()
         const cleanLine = line.replace(/\*\*/g, '')
         sectionContent.push(
-          <div key={`formula-${i}`} className="formula-box">
-            {cleanLine}
+          <div key={`box-${i}`} className="highlight-box">
+            <div className="highlight-box-content">{parseInlineStyles(cleanLine)}</div>
           </div>
         )
         continue
       }
 
-      // 용어 설명 (→ 화살표 포함)
-      if (line.match(/→/) && line.match(/\*\*(.*?)\*\*/)) {
-        const parts = line.split('→')
-        const termName = parts[0].replace(/\*\*/g, '').trim()
-        const termDesc = parts.slice(1).join('→').trim()
-        
-        sectionContent.push(
-          <div key={`term-${i}`} className="term-box">
-            <div className="term-name">
-              💡 {termName}
-            </div>
-            <div className="term-desc">
-              {termDesc}
-            </div>
-          </div>
-        )
-        continue
-      }
-
-      // 리스트 아이템 (✅, ❗, ❌, 📝, ↑, ↓, → 등)
-      const listMatch = line.match(/^([✅❗❌📝↑↓→-])\s*(.+)/)
-      if (listMatch) {
-        const bullet = listMatch[1]
-        const content = listMatch[2]
-        let itemClass = 'neutral'
-        
-        if (bullet === '✅' || bullet === '↑') itemClass = 'positive'
-        if (bullet === '❗' || bullet === '❌' || bullet === '↓') itemClass = 'negative'
-        
-        sectionContent.push(
-          <div key={`list-${i}`} className={`ai-list-item ${itemClass}`}>
-            <span className="bullet">{bullet}</span>
-            <span>{parseInlineStyles(content)}</span>
-          </div>
-        )
-        continue
-      }
-
-      // 일반 텍스트 (인라인 스타일 적용)
-      if (line) {
+      // 일반 텍스트
+      if (line && !line.match(/^━/)) {
+        flushList()
+        flushTable()
         sectionContent.push(
           <p key={`text-${i}`}>{parseInlineStyles(line)}</p>
         )
       }
     }
 
+    flushList()
+    flushTable()
     flushSection()
     return elements
   }

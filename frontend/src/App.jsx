@@ -9,8 +9,8 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📊 재무제표 시각화</h1>
-        <p>기업의 재무정보를 한눈에 확인하세요</p>
+        <h1>AI-Finance 투자 분석 보고서</h1>
+        <p>AI 기반 기업 재무분석 및 투자 인사이트</p>
       </header>
 
       <main className="app-main">
