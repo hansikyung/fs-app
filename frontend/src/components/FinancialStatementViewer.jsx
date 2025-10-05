@@ -465,8 +465,8 @@ function FinancialStatementViewer({ company }) {
     }
   }
 
-  // 손익계산서 박스 시각화를 위한 데이터 준비 (연도별)
-  const prepareIncomeStatementBoxData = (period = 'thstrm_amount') => {
+  // 손익계산서 폭포수 시각화를 위한 데이터 준비 (연도별)
+  const prepareIncomeStatementWaterfallData = (period = 'thstrm_amount') => {
     if (!data) return null
 
     const cfsData = data.filter(item => item.fs_div === 'CFS' && item.sj_div === 'IS')
@@ -480,44 +480,27 @@ function FinancialStatementViewer({ company }) {
 
     const 매출액 = getAmount('매출액')
     const 매출원가 = getAmount('매출원가')
-    const 매출총이익 = getAmount('매출총이익')
+    const 매출총이익 = getAmount('매출총이익') || (매출액 - 매출원가)
     const 판매비와관리비 = getAmount('판매비와관리비')
-    const 영업이익 = getAmount('영업이익')
+    const 영업이익 = getAmount('영업이익') || (매출총이익 - 판매비와관리비)
     const 영업외수익 = getAmount('영업외수익')
     const 영업외비용 = getAmount('영업외비용')
-    const 법인세비용 = getAmount('법인세비용차감전순이익') || getAmount('법인세비용')
-    const 당기순이익 = getAmount('당기순이익(손실)') || getAmount('당기순이익')
+    const 법인세차감전 = getAmount('법인세비용차감전순이익') || (영업이익 + 영업외수익 - 영업외비용)
+    const 법인세 = getAmount('법인세비용')
+    const 당기순이익 = getAmount('당기순이익(손실)') || getAmount('당기순이익') || (법인세차감전 - Math.abs(법인세))
 
-    // 총 수익 = 매출액 + 영업외수익
-    const 총수익 = 매출액 + 영업외수익
-    
-    // 총 비용 = 매출원가 + 판매비와관리비 + 영업외비용 + 법인세비용
-    const 총비용 = 매출원가 + 판매비와관리비 + 영업외비용 + Math.abs(법인세비용)
-
-    const 총계 = 총수익
-
-    return {
-      매출액,
-      영업외수익,
-      총수익,
-      매출원가,
-      판매비와관리비,
-      영업외비용,
-      법인세비용,
-      총비용,
-      영업이익,
-      당기순이익,
-      총계,
-      // 비율 계산 (0-100%)
-      매출액비율: 총계 > 0 ? (매출액 / 총계 * 100) : 0,
-      영업외수익비율: 총계 > 0 ? (영업외수익 / 총계 * 100) : 0,
-      매출원가비율: 총계 > 0 ? (매출원가 / 총계 * 100) : 0,
-      판관비비율: 총계 > 0 ? (판매비와관리비 / 총계 * 100) : 0,
-      영업외비용비율: 총계 > 0 ? (영업외비용 / 총계 * 100) : 0,
-      법인세비율: 총계 > 0 ? (Math.abs(법인세비용) / 총계 * 100) : 0,
-      영업이익비율: 총계 > 0 ? (영업이익 / 총계 * 100) : 0,
-      당기순이익비율: 총계 > 0 ? (당기순이익 / 총계 * 100) : 0,
-    }
+    return [
+      { label: '매출액', amount: 매출액, type: 'revenue', operator: '' },
+      { label: '매출원가', amount: 매출원가, type: 'expense', operator: '-' },
+      { label: '매출총이익', amount: 매출총이익, type: 'profit', operator: '=' },
+      { label: '판매관리비', amount: 판매비와관리비, type: 'expense', operator: '-' },
+      { label: '영업이익', amount: 영업이익, type: 'profit', operator: '=' },
+      { label: '영업외수익', amount: 영업외수익, type: 'revenue', operator: '+' },
+      { label: '영업외비용', amount: 영업외비용, type: 'expense', operator: '-' },
+      { label: '법인세차감전순이익', amount: 법인세차감전, type: 'profit', operator: '=' },
+      { label: '법인세', amount: Math.abs(법인세), type: 'expense', operator: '-' },
+      { label: '당기순이익', amount: 당기순이익, type: 'profit', operator: '=' }
+    ]
   }
 
   // 차트 표시 연도 선택 상태
@@ -539,7 +522,7 @@ function FinancialStatementViewer({ company }) {
   // 선택한 연도에 따라 박스 데이터 준비
   const selectedPeriod = selectedChartYear === '연결' ? 'thstrm_amount' : getPeriodKey(selectedChartYear)
   const balanceSheetBoxData = prepareBalanceSheetBoxData(selectedPeriod)
-  const incomeStatementBoxData = prepareIncomeStatementBoxData(selectedPeriod)
+  const incomeStatementWaterfallData = prepareIncomeStatementWaterfallData(selectedPeriod)
 
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear()
@@ -627,6 +610,32 @@ function FinancialStatementViewer({ company }) {
     }
   }
 
+  // PDF 다운로드 함수
+  const handleDownloadPDF = () => {
+    const element = document.getElementById('ai-report-content')
+    if (!element) {
+      alert('보고서 내용을 찾을 수 없습니다.')
+      return
+    }
+
+    // html2pdf 옵션 설정
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `${company.corp_name}_AI분석보고서_${year}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }
+
+    // html2pdf 라이브러리 동적 로드 및 PDF 생성
+    import('html2pdf.js').then(html2pdf => {
+      html2pdf.default().set(opt).from(element).save()
+    }).catch(err => {
+      console.error('PDF 생성 오류:', err)
+      alert('PDF 생성 중 오류가 발생했습니다.')
+    })
+  }
+
   return (
     <div className="financial-viewer">
       <div className="viewer-header">
@@ -665,141 +674,35 @@ function FinancialStatementViewer({ company }) {
           {/* AI 설명 섹션 */}
           <div className="ai-explanation-section">
             <div className="ai-header">
-              <h3>🤖 AI 재무제표 해설</h3>
+              <h3>AI분석 보고서</h3>
               <div className="ai-buttons">
                 <button
-                  onClick={handleExplainWithAI}
-                  disabled={aiLoading}
-                  className="ai-button"
-                >
-                  {aiLoading ? '분석 중...' : 'AI로 쉽게 설명받기'}
-                </button>
-                <button
                   onClick={handleStockAnalysis}
-                  disabled={stockLoading}
+                  disabled={stockLoading || investmentLoading}
                   className="ai-button stock-button"
                 >
-                  {stockLoading ? '주가 조회 중...' : '📈 최근 주식 현황'}
+                  {stockLoading || investmentLoading ? '분석 중...' : 'AI 분석'}
                 </button>
+                {investmentAnalysis && (
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="ai-button pdf-button"
+                  >
+                    PDF 다운
+                  </button>
+                )}
               </div>
             </div>
 
-            {aiExplanation && (
-              <div className="ai-explanation-content">
+            {investmentAnalysis && (
+              <div className="ai-explanation-content" id="ai-report-content">
                 <div className="explanation-text">
-                  {parseAIExplanation(aiExplanation)}
+                  {parseAIExplanation(investmentAnalysis)}
                 </div>
               </div>
             )}
           </div>
 
-          {/* 주식 현황 섹션 */}
-          {showStockAnalysis && stockData && (
-            <div className="stock-analysis-section">
-              <h3>📈 주식 현황 ({company.stock_code})</h3>
-
-              {/* 주가 통계 */}
-              <div className="stock-statistics">
-                <div className="stat-card">
-                  <div className="stat-label">현재가</div>
-                  <div className="stat-value">{stockData.statistics.current_price.toLocaleString()}원</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">변동률</div>
-                  <div className={`stat-value ${stockData.statistics.change_percent >= 0 ? 'positive' : 'negative'}`}>
-                    {stockData.statistics.change_percent >= 0 ? '+' : ''}{stockData.statistics.change_percent.toFixed(2)}%
-                  </div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">52주 최고</div>
-                  <div className="stat-value">{stockData.statistics.high_52week.toLocaleString()}원</div>
-                </div>
-                <div className="stat-card">
-                  <div className="stat-label">52주 최저</div>
-                  <div className="stat-value">{stockData.statistics.low_52week.toLocaleString()}원</div>
-                </div>
-              </div>
-
-              {/* 주가 차트 */}
-              <div className="chart-section">
-                <h4>주가 추이 (1년)</h4>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={stockData.data.dates.map((date, idx) => ({
-                    date: date,
-                    price: stockData.data.prices[idx]
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(date) => {
-                        const d = new Date(date)
-                        return `${d.getMonth() + 1}/${d.getDate()}`
-                      }}
-                    />
-                    <YAxis
-                      label={{ value: '원', angle: -90, position: 'insideLeft' }}
-                      domain={['auto', 'auto']}
-                    />
-                    <Tooltip
-                      formatter={(value) => `${value.toLocaleString()}원`}
-                      labelFormatter={(date) => date}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="price"
-                      stroke="#2563eb"
-                      strokeWidth={2}
-                      name="주가"
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* 거래량 차트 */}
-              <div className="chart-section">
-                <h4>거래량 추이</h4>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={stockData.data.dates.map((date, idx) => ({
-                    date: date,
-                    volume: stockData.data.volumes[idx]
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(date) => {
-                        const d = new Date(date)
-                        return `${d.getMonth() + 1}/${d.getDate()}`
-                      }}
-                    />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => value.toLocaleString()}
-                      labelFormatter={(date) => date}
-                    />
-                    <Bar dataKey="volume" fill="#10b981" name="거래량" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* AI 투자 분석 */}
-              {investmentLoading && (
-                <div className="investment-loading">
-                  <p>🤖 AI가 재무제표와 주가를 종합 분석 중입니다...</p>
-                </div>
-              )}
-
-              {investmentAnalysis && (
-                <div className="investment-analysis">
-                  <h3>🤖 AI 종합 투자 분석</h3>
-                  <div className="analysis-content">
-                    {parseAIExplanation(investmentAnalysis)}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
           {/* 재무상태표 */}
           <div className="chart-section">
             <div className="chart-header-with-select">
@@ -946,113 +849,24 @@ function FinancialStatementViewer({ company }) {
             </ResponsiveContainer>
           </div>
 
-          {/* 손익계산서 박스 시각화 */}
-          {incomeStatementBoxData && (
+          {/* 손익계산서 폭포수 시각화 */}
+          {incomeStatementWaterfallData && (
             <div className="chart-section">
-              <h3>📊 손익계산서 구조 (수익 - 비용 = 이익)</h3>
-              <div className="income-statement-box-container">
-                {/* 좌측: 수익 */}
-                <div className="income-box revenue-box">
-                  <div className="box-header">
-                    <h4>수익</h4>
-                    <span className="box-total">{formatAmountWithUnit(incomeStatementBoxData.총수익.toString())}</span>
-                  </div>
-                  <div className="box-content">
-                    {/* 매출액 */}
-                    <div 
-                      className="box-item revenue-sales"
-                      style={{ height: `${incomeStatementBoxData.매출액비율}%` }}
-                    >
-                      <div className="item-label">매출액</div>
-                      <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.매출액.toString())}</div>
-                      <div className="item-percent">{incomeStatementBoxData.매출액비율.toFixed(1)}%</div>
-                    </div>
-                    {/* 영업외수익 */}
-                    {incomeStatementBoxData.영업외수익 > 0 && (
-                      <div 
-                        className="box-item revenue-other"
-                        style={{ height: `${incomeStatementBoxData.영업외수익비율}%` }}
-                      >
-                        <div className="item-label">영업외수익</div>
-                        <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.영업외수익.toString())}</div>
-                        <div className="item-percent">{incomeStatementBoxData.영업외수익비율.toFixed(1)}%</div>
+              <h3>📊 손익계산서 구조</h3>
+              <div className="income-waterfall-container">
+                {incomeStatementWaterfallData.map((item, index) => (
+                  <div key={index} className="waterfall-row">
+                    {item.operator && (
+                      <div className={`waterfall-operator operator-${item.type}`}>
+                        {item.operator}
                       </div>
                     )}
-                  </div>
-                </div>
-
-                {/* 빼기 기호 */}
-                <div className="income-minus">-</div>
-
-                {/* 중앙: 비용 */}
-                <div className="income-box expense-box">
-                  <div className="box-header">
-                    <h4>비용</h4>
-                    <span className="box-total">{formatAmountWithUnit(incomeStatementBoxData.총비용.toString())}</span>
-                  </div>
-                  <div className="box-content">
-                    {/* 매출원가 */}
-                    <div 
-                      className="box-item expense-cogs"
-                      style={{ height: `${incomeStatementBoxData.매출원가비율}%` }}
-                    >
-                      <div className="item-label">매출원가</div>
-                      <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.매출원가.toString())}</div>
-                      <div className="item-percent">{incomeStatementBoxData.매출원가비율.toFixed(1)}%</div>
-                    </div>
-                    {/* 판매비와관리비 */}
-                    <div 
-                      className="box-item expense-sga"
-                      style={{ height: `${incomeStatementBoxData.판관비비율}%` }}
-                    >
-                      <div className="item-label">판관비</div>
-                      <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.판매비와관리비.toString())}</div>
-                      <div className="item-percent">{incomeStatementBoxData.판관비비율.toFixed(1)}%</div>
-                    </div>
-                    {/* 영업외비용 */}
-                    {incomeStatementBoxData.영업외비용 > 0 && (
-                      <div 
-                        className="box-item expense-other"
-                        style={{ height: `${incomeStatementBoxData.영업외비용비율}%` }}
-                      >
-                        <div className="item-label">영업외비용</div>
-                        <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.영업외비용.toString())}</div>
-                        <div className="item-percent">{incomeStatementBoxData.영업외비용비율.toFixed(1)}%</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 등호 */}
-                <div className="income-equals">=</div>
-
-                {/* 우측: 이익 */}
-                <div className="income-box profit-box">
-                  <div className="box-header">
-                    <h4>이익</h4>
-                    <span className="box-total">{formatAmountWithUnit(incomeStatementBoxData.당기순이익.toString())}</span>
-                  </div>
-                  <div className="box-content">
-                    {/* 영업이익 */}
-                    <div 
-                      className="box-item profit-operating"
-                      style={{ height: `${Math.max(incomeStatementBoxData.영업이익비율, 10)}%` }}
-                    >
-                      <div className="item-label">영업이익</div>
-                      <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.영업이익.toString())}</div>
-                      <div className="item-percent">{incomeStatementBoxData.영업이익비율.toFixed(1)}%</div>
-                    </div>
-                    {/* 당기순이익 */}
-                    <div 
-                      className="box-item profit-net"
-                      style={{ height: `${Math.max(incomeStatementBoxData.당기순이익비율, 10)}%` }}
-                    >
-                      <div className="item-label">당기순이익</div>
-                      <div className="item-amount">{formatAmountWithUnit(incomeStatementBoxData.당기순이익.toString())}</div>
-                      <div className="item-percent">{incomeStatementBoxData.당기순이익비율.toFixed(1)}%</div>
+                    <div className={`waterfall-item waterfall-${item.type}`}>
+                      <div className="waterfall-label">{item.label}</div>
+                      <div className="waterfall-amount">{formatAmountWithUnit(item.amount.toString())}</div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           )}

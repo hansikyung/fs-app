@@ -313,6 +313,18 @@ td.account-name {
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
+/* PDF 다운로드 버튼 */
+.pdf-button {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.pdf-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+  transform: translateY(-2px);
+}
+
 /* 주식 분석 섹션 */
 .stock-analysis-section {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
@@ -929,15 +941,100 @@ td.account-name {
 }
 
 /* ============================================ */
-/* 손익계산서 박스 시각화 */
+/* 손익계산서 폭포수 시각화 */
 /* ============================================ */
-.income-statement-box-container {
+.income-waterfall-container {
   display: flex;
-  align-items: stretch;
-  justify-content: center;
-  gap: 40px;
-  padding: 40px 20px;
-  min-height: 800px;
+  flex-direction: column;
+  gap: 0;
+  padding: 30px;
+  background: #f8f8f8;
+  border-radius: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.waterfall-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0;
+}
+
+.waterfall-operator {
+  font-size: 2rem;
+  font-weight: 700;
+  width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.waterfall-operator.operator-expense {
+  color: #ef4444;
+}
+
+.waterfall-operator.operator-revenue {
+  color: #3b82f6;
+}
+
+.waterfall-operator.operator-profit {
+  color: #10b981;
+}
+
+.waterfall-item {
+  flex: 1;
+  padding: 20px 24px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  margin: 4px 0;
+}
+
+.waterfall-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* 수익 (파란색) */
+.waterfall-revenue {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  border-left: 5px solid #1e40af;
+}
+
+/* 비용 (빨간색) */
+.waterfall-expense {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  border-left: 5px solid #b91c1c;
+}
+
+/* 이익 (초록색) */
+.waterfall-profit {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  border-left: 5px solid #047857;
+  font-weight: 700;
+}
+
+.waterfall-label {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.waterfall-amount {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 기존 손익계산서 박스 (이제 사용 안 함, 나중에 정리 가능) */
+.income-statement-box-container {
+  display: none;
 }
 
 .income-box {
