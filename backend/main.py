@@ -90,65 +90,6 @@ def get_db_connection():
     return conn
 
 
-# 정적 파일 서빙 설정 (프론트엔드 빌드 파일)
-# 여러 가능한 경로 시도
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-POSSIBLE_STATIC_DIRS = [
-    os.path.join(BASE_DIR, "frontend", "dist"),
-    os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"),
-    "frontend/dist",
-    "./frontend/dist"
-]
-
-STATIC_DIR = None
-for possible_dir in POSSIBLE_STATIC_DIRS:
-    abs_path = os.path.abspath(possible_dir)
-    print(f"🔍 정적 파일 경로 확인: {abs_path}")
-    if os.path.exists(abs_path):
-        STATIC_DIR = abs_path
-        print(f"✅ 정적 파일 디렉토리 발견: {STATIC_DIR}")
-        break
-
-if STATIC_DIR and os.path.exists(STATIC_DIR):
-    print(f"📂 정적 파일 내용: {os.listdir(STATIC_DIR)}")
-    
-    # assets 폴더가 있는 경우에만 마운트
-    assets_dir = os.path.join(STATIC_DIR, "assets")
-    if os.path.exists(assets_dir):
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="static")
-        print(f"✅ /assets 마운트 완료")
-    
-    @app.get("/")
-    async def serve_root():
-        """프론트엔드 index.html 서빙"""
-        index_path = os.path.join(STATIC_DIR, "index.html")
-        print(f"📄 index.html 서빙: {index_path}")
-        return FileResponse(index_path)
-    
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        """SPA 라우팅을 위한 catch-all (API 경로 제외)"""
-        # API 경로는 제외
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="Not found")
-        
-        # 파일이 존재하면 반환
-        file_path = os.path.join(STATIC_DIR, full_path)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            return FileResponse(file_path)
-        
-        # 그 외에는 index.html 반환 (SPA 라우팅)
-        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
-else:
-    print(f"❌ 정적 파일 디렉토리를 찾을 수 없습니다. 시도한 경로:")
-    for possible_dir in POSSIBLE_STATIC_DIRS:
-        print(f"  - {os.path.abspath(possible_dir)}")
-    
-    @app.get("/")
-    def read_root():
-        return {"message": "재무제표 시각화 API", "error": "프론트엔드 빌드 파일을 찾을 수 없습니다."}
-
-
 @app.get("/api/companies/search", response_model=List[Company])
 def search_companies(query: str, limit: int = 20):
     """회사명으로 검색"""
@@ -591,6 +532,66 @@ def investment_analysis(request: InvestmentAnalysisRequest):
             "status": "error",
             "analysis": f"투자 분석 생성 중 오류가 발생했습니다.\n\n오류 내용: {str(e)}"
         }
+
+
+# ============================================
+# 정적 파일 서빙 (맨 마지막에 정의 - catch-all 라우트)
+# ============================================
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+POSSIBLE_STATIC_DIRS = [
+    os.path.join(BASE_DIR, "frontend", "dist"),
+    os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"),
+    "frontend/dist",
+    "./frontend/dist"
+]
+
+STATIC_DIR = None
+for possible_dir in POSSIBLE_STATIC_DIRS:
+    abs_path = os.path.abspath(possible_dir)
+    print(f"🔍 정적 파일 경로 확인: {abs_path}")
+    if os.path.exists(abs_path):
+        STATIC_DIR = abs_path
+        print(f"✅ 정적 파일 디렉토리 발견: {STATIC_DIR}")
+        break
+
+if STATIC_DIR and os.path.exists(STATIC_DIR):
+    print(f"📂 정적 파일 내용: {os.listdir(STATIC_DIR)}")
+    
+    # assets 폴더가 있는 경우에만 마운트
+    assets_dir = os.path.join(STATIC_DIR, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="static")
+        print(f"✅ /assets 마운트 완료")
+    
+    @app.get("/")
+    async def serve_root():
+        """프론트엔드 index.html 서빙"""
+        index_path = os.path.join(STATIC_DIR, "index.html")
+        print(f"📄 index.html 서빙: {index_path}")
+        return FileResponse(index_path)
+    
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """SPA 라우팅을 위한 catch-all (API 경로 제외)"""
+        # API 경로는 제외
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+        
+        # 파일이 존재하면 반환
+        file_path = os.path.join(STATIC_DIR, full_path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        
+        # 그 외에는 index.html 반환 (SPA 라우팅)
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+else:
+    print(f"❌ 정적 파일 디렉토리를 찾을 수 없습니다. 시도한 경로:")
+    for possible_dir in POSSIBLE_STATIC_DIRS:
+        print(f"  - {os.path.abspath(possible_dir)}")
+    
+    @app.get("/")
+    def read_root():
+        return {"message": "재무제표 시각화 API", "error": "프론트엔드 빌드 파일을 찾을 수 없습니다."}
 
 
 if __name__ == "__main__":
