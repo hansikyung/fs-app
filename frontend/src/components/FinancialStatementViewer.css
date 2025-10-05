@@ -1,0 +1,499 @@
+.financial-viewer {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.95) 100%);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid rgba(209, 209, 214, 0.3);
+}
+
+.viewer-header h2 {
+  color: #1d1d1f;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #1d1d1f 0%, #6e6e73 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+}
+
+.control-select {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: 2px solid rgba(209, 209, 214, 0.6);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.01em;
+}
+
+.control-select:hover {
+  border-color: #d4af37;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.control-select:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12), 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+.viewer-status {
+  text-align: center;
+  padding: 50px;
+  color: #6e6e73;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.viewer-error {
+  text-align: center;
+  padding: 40px;
+  color: #d32f2f;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffebee 100%);
+  border-radius: 16px;
+  margin: 24px 0;
+  font-weight: 500;
+  border: 1px solid rgba(211, 47, 47, 0.2);
+}
+
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.chart-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 248, 248, 0.7) 100%);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(209, 209, 214, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.chart-section h3 {
+  margin-bottom: 24px;
+  color: #1d1d1f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.data-table {
+  margin-top: 8px;
+}
+
+.data-table h3 {
+  margin-bottom: 20px;
+  color: #1d1d1f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(209, 209, 214, 0.3);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+thead {
+  background: linear-gradient(135deg, #1d1d1f 0%, #424245 50%, #6e6e73 100%);
+  color: white;
+}
+
+/* 재무상태표 테이블 색상 */
+.table-bs thead {
+  background: linear-gradient(135deg, #d4af37 0%, #b8860b 50%, #996515 100%);
+  color: white;
+}
+
+.table-bs tbody tr:hover {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.12) 0%, rgba(184, 134, 11, 0.08) 100%);
+  border-left: 3px solid #d4af37;
+}
+
+/* 손익계산서 테이블 색상 */
+.table-is thead {
+  background: linear-gradient(135deg, #6e6e73 0%, #5a5a5f 50%, #424245 100%);
+  color: white;
+}
+
+.table-is tbody tr:hover {
+  background: linear-gradient(90deg, rgba(110, 110, 115, 0.1) 0%, rgba(66, 66, 69, 0.06) 100%);
+  border-left: 3px solid #6e6e73;
+}
+
+/* 재무비율 테이블 색상 */
+.table-ratios thead {
+  background: linear-gradient(135deg, #0071e3 0%, #005bb5 50%, #004999 100%);
+  color: white;
+}
+
+.table-ratios tbody tr:hover {
+  background: linear-gradient(90deg, rgba(0, 113, 227, 0.1) 0%, rgba(0, 91, 181, 0.06) 100%);
+  border-left: 3px solid #0071e3;
+}
+
+th, td {
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(209, 209, 214, 0.3);
+}
+
+th {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+tbody tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+tbody tr:hover {
+  transform: translateX(2px);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4) {
+  text-align: right;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #424245;
+}
+
+td.account-name {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* AI 설명 섹션 */
+.ai-explanation-section {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ai-header h3 {
+  color: #1d1d1f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.ai-button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  letter-spacing: -0.01em;
+}
+
+.ai-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  background: linear-gradient(135deg, #e5c048 0%, #c9971c 100%);
+}
+
+.ai-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stock-button {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.stock-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* 주식 분석 섹션 */
+.stock-analysis-section {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(37, 99, 235, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.stock-analysis-section h3 {
+  color: #1d1d1f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+.stock-analysis-section h4 {
+  color: #1d1d1f;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+.stock-statistics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(209, 209, 214, 0.3);
+  text-align: center;
+}
+
+.stat-label {
+  color: #6e6e73;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  color: #1d1d1f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+}
+
+.stat-value.positive {
+  color: #10b981;
+}
+
+.stat-value.negative {
+  color: #ef4444;
+}
+
+/* 투자 분석 */
+.investment-loading {
+  text-align: center;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  margin-top: 24px;
+}
+
+.investment-loading p {
+  color: #6e6e73;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.investment-analysis {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(209, 209, 214, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  margin-top: 24px;
+}
+
+.investment-analysis h3 {
+  color: #1d1d1f;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.analysis-content {
+  line-height: 2;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.analysis-content p {
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.analysis-content p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-explanation-content {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid rgba(209, 209, 214, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.explanation-text {
+  line-height: 2;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.explanation-text p {
+  margin-bottom: 14px;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.explanation-text p:last-child {
+  margin-bottom: 0;
+}
+
+.explanation-text p:empty {
+  margin-bottom: 6px;
+}
+
+/* 강조 텍스트 */
+.explanation-text strong,
+.explanation-text b {
+  color: #d4af37;
+  font-weight: 700;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 섹션 구분을 위한 여백 */
+.explanation-text br + br {
+  display: block;
+  content: "";
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .financial-viewer {
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .viewer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .control-select {
+    width: 100%;
+  }
+
+  .viewer-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .chart-section {
+    padding: 20px;
+  }
+
+  .chart-section h3,
+  .data-table h3 {
+    font-size: 1.3rem;
+  }
+
+  th, td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .ai-explanation-section {
+    padding: 20px;
+  }
+
+  .ai-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ai-button {
+    width: 100%;
+  }
+
+  .ai-explanation-content {
+    padding: 20px;
+  }
+
+  .explanation-text p {
+    font-size: 1rem;
+  }
+}

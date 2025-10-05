@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd backend && python main.py"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+[env]
+# 환경 변수는 Railway 대시보드에서 설정하세요
+# DART_API_KEY=your_key_here
+# GEMINI_API_KEY=your_key_here

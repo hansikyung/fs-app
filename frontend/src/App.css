@@ -1,0 +1,65 @@
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 60px 20px 40px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 248, 0.9) 100%);
+  border-radius: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  max-width: 1400px;
+  margin: 0 auto 50px;
+}
+
+.app-header h1 {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1d1d1f 0%, #6e6e73 40%, #d4af37 70%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.03em;
+}
+
+.app-header p {
+  font-size: 1.3rem;
+  color: #6e6e73;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.app-main {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.app-footer {
+  text-align: center;
+  color: #86868b;
+  margin-top: 80px;
+  padding: 30px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 40px 20px 30px;
+    border-radius: 20px;
+  }
+  
+  .app-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .app-header p {
+    font-size: 1.1rem;
+  }
+}
