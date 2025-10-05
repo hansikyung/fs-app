@@ -102,6 +102,45 @@
   letter-spacing: -0.02em;
 }
 
+/* 차트 헤더와 연도 선택 */
+.chart-header-with-select {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.chart-header-with-select h3 {
+  margin-bottom: 0;
+}
+
+.year-select {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: -0.01em;
+  outline: none;
+}
+
+.year-select:hover {
+  border-color: #d4af37;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
+}
+
+.year-select:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+}
+
 .data-table {
   margin-top: 8px;
 }
@@ -712,5 +751,156 @@ td.account-name {
 
   .box-content {
     height: 350px;
+  }
+}
+
+/* ============================================ */
+/* 손익계산서 박스 시각화 */
+/* ============================================ */
+.income-statement-box-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 40px 20px;
+  min-height: 600px;
+}
+
+.income-box {
+  flex: 1;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 2px solid rgba(209, 209, 214, 0.3);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.income-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* 수익 박스 */
+.revenue-box .box-header {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.revenue-box .box-header h4,
+.revenue-box .box-total {
+  color: #ffffff;
+}
+
+.revenue-sales {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+}
+
+.revenue-other {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+/* 비용 박스 */
+.expense-box .box-header {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.expense-box .box-header h4,
+.expense-box .box-total {
+  color: #ffffff;
+}
+
+.expense-cogs {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+.expense-sga {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+}
+
+.expense-other {
+  background: linear-gradient(135deg, #f87171 0%, #fca5a5 100%);
+}
+
+/* 이익 박스 */
+.profit-box .box-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.profit-box .box-header h4,
+.profit-box .box-total {
+  color: #ffffff;
+}
+
+.profit-operating {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.profit-net {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+/* 빼기 기호 */
+.income-minus {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #ef4444;
+  text-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 등호 (손익계산서용) */
+.income-equals {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #3b82f6;
+  text-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 반응형 디자인 (손익계산서) */
+@media (max-width: 1280px) {
+  .income-statement-box-container {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .income-box {
+    max-width: 280px;
+  }
+
+  .income-minus,
+  .income-equals {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .income-statement-box-container {
+    flex-direction: column;
+    gap: 30px;
+    min-height: auto;
+  }
+
+  .income-box {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .income-minus,
+  .income-equals {
+    font-size: 3rem;
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .income-statement-box-container {
+    padding: 20px 10px;
+  }
+
+  .income-minus,
+  .income-equals {
+    font-size: 2.5rem;
   }
 }
