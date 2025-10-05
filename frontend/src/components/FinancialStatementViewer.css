@@ -546,7 +546,7 @@ td.account-name {
   justify-content: center;
   gap: 40px;
   padding: 40px 20px;
-  min-height: 600px;
+  min-height: 800px;
 }
 
 .balance-box {
@@ -592,7 +592,7 @@ td.account-name {
 .box-content {
   display: flex;
   flex-direction: column;
-  height: 500px;
+  height: 700px;
   position: relative;
 }
 
@@ -601,11 +601,13 @@ td.account-name {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 24px 16px;
   border-bottom: 1px solid rgba(209, 209, 214, 0.2);
   position: relative;
   transition: all 0.3s ease;
   cursor: pointer;
+  min-height: 120px; /* 최소 높이 확보 */
+  overflow: visible; /* 텍스트가 잘리지 않도록 */
 }
 
 .box-item:last-child {
@@ -618,29 +620,36 @@ td.account-name {
 }
 
 .item-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1d1d1f;
-  margin-bottom: 8px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
   letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1.3;
+  text-align: center;
 }
 
 .item-amount {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #6e6e73;
-  margin-bottom: 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
   font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  line-height: 1.4;
 }
 
 .item-percent {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(0, 0, 0, 0.5);
-  padding: 4px 12px;
-  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 16px;
+  border-radius: 16px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 자산 박스 스타일 */
@@ -720,7 +729,7 @@ td.account-name {
   }
 
   .box-content {
-    height: 400px;
+    height: 600px;
   }
 }
 
@@ -738,11 +747,11 @@ td.account-name {
   }
 
   .item-label {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .item-amount {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .balance-equals {
@@ -750,7 +759,12 @@ td.account-name {
   }
 
   .box-content {
-    height: 350px;
+    height: 550px;
+  }
+
+  .box-item {
+    min-height: 100px;
+    padding: 20px 12px;
   }
 }
 
@@ -763,7 +777,7 @@ td.account-name {
   justify-content: center;
   gap: 30px;
   padding: 40px 20px;
-  min-height: 600px;
+  min-height: 800px;
 }
 
 .income-box {
