@@ -31,7 +31,10 @@ COPY download_corp_code.py .
 COPY init_db.py .
 
 # 프론트엔드 빌드 결과 복사
-COPY --from=frontend-build /app/frontend/dist ./backend/static
+COPY --from=frontend-build /app/frontend/dist ./frontend/dist
+
+# 회사 코드 다운로드 및 DB 초기화
+RUN python download_corp_code.py && python init_db.py
 
 # 포트 노출
 EXPOSE 8000

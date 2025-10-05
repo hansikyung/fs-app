@@ -91,15 +91,39 @@ def get_db_connection():
 
 
 # 정적 파일 서빙 설정 (프론트엔드 빌드 파일)
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "../frontend/dist")
-if os.path.exists(STATIC_DIR):
-    # 정적 파일 마운트
-    app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="static")
+# 여러 가능한 경로 시도
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+POSSIBLE_STATIC_DIRS = [
+    os.path.join(BASE_DIR, "frontend", "dist"),
+    os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"),
+    "frontend/dist",
+    "./frontend/dist"
+]
+
+STATIC_DIR = None
+for possible_dir in POSSIBLE_STATIC_DIRS:
+    abs_path = os.path.abspath(possible_dir)
+    print(f"🔍 정적 파일 경로 확인: {abs_path}")
+    if os.path.exists(abs_path):
+        STATIC_DIR = abs_path
+        print(f"✅ 정적 파일 디렉토리 발견: {STATIC_DIR}")
+        break
+
+if STATIC_DIR and os.path.exists(STATIC_DIR):
+    print(f"📂 정적 파일 내용: {os.listdir(STATIC_DIR)}")
+    
+    # assets 폴더가 있는 경우에만 마운트
+    assets_dir = os.path.join(STATIC_DIR, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="static")
+        print(f"✅ /assets 마운트 완료")
     
     @app.get("/")
     async def serve_root():
         """프론트엔드 index.html 서빙"""
-        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+        index_path = os.path.join(STATIC_DIR, "index.html")
+        print(f"📄 index.html 서빙: {index_path}")
+        return FileResponse(index_path)
     
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -116,9 +140,13 @@ if os.path.exists(STATIC_DIR):
         # 그 외에는 index.html 반환 (SPA 라우팅)
         return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 else:
+    print(f"❌ 정적 파일 디렉토리를 찾을 수 없습니다. 시도한 경로:")
+    for possible_dir in POSSIBLE_STATIC_DIRS:
+        print(f"  - {os.path.abspath(possible_dir)}")
+    
     @app.get("/")
     def read_root():
-        return {"message": "재무제표 시각화 API"}
+        return {"message": "재무제표 시각화 API", "error": "프론트엔드 빌드 파일을 찾을 수 없습니다."}
 
 
 @app.get("/api/companies/search", response_model=List[Company])
