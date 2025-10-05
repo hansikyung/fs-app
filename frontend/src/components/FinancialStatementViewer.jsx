@@ -21,6 +21,182 @@ function FinancialStatementViewer({ company }) {
   const [investmentAnalysis, setInvestmentAnalysis] = useState(null)
   const [investmentLoading, setInvestmentLoading] = useState(false)
 
+  // AI 설명 텍스트를 파싱하여 스타일이 적용된 React 요소로 변환
+  const parseAIExplanation = (text) => {
+    if (!text) return null
+
+    const lines = text.split('\n')
+    const elements = []
+    let currentSection = null
+    let sectionContent = []
+
+    const flushSection = () => {
+      if (currentSection && sectionContent.length > 0) {
+        elements.push(
+          <div key={elements.length} className="ai-section-box">
+            <div className="ai-section-title">
+              <span className="icon">{currentSection.icon}</span>
+              {currentSection.title}
+            </div>
+            {sectionContent.map((content, idx) => (
+              <div key={idx}>{content}</div>
+            ))}
+          </div>
+        )
+        sectionContent = []
+      }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim()
+      
+      // 빈 줄 무시
+      if (line === '' || line.match(/^━+$/)) {
+        continue
+      }
+
+      // 섹션 타이틀 감지 (이모지 + 숫자. 형식)
+      const sectionMatch = line.match(/^([📌💰📈🔍💡📊])?\s*(\d+\.\s*)(.+)/)
+      if (sectionMatch) {
+        flushSection()
+        const icon = sectionMatch[1] || '📌'
+        const title = sectionMatch[3]
+        currentSection = { icon, title }
+        continue
+      }
+
+      // 상태 뱃지 (🟢🟡🔴)
+      if (line.match(/[🟢🟡🔴]/)) {
+        let badgeClass = 'healthy'
+        if (line.includes('🟡')) badgeClass = 'caution'
+        if (line.includes('🔴')) badgeClass = 'warning'
+        
+        const cleanLine = line.replace(/[🟢🟡🔴]/g, '').trim()
+        sectionContent.push(
+          <div key={`badge-${i}`} className={`status-badge ${badgeClass}`}>
+            {line.match(/[🟢🟡🔴]/)[0]} {cleanLine}
+          </div>
+        )
+        continue
+      }
+
+      // 공식 (=, ÷, ×, % 포함)
+      if (line.match(/[=÷×%]/) && line.match(/\*\*.*?\*\*/)) {
+        const cleanLine = line.replace(/\*\*/g, '')
+        sectionContent.push(
+          <div key={`formula-${i}`} className="formula-box">
+            {cleanLine}
+          </div>
+        )
+        continue
+      }
+
+      // 용어 설명 (→ 화살표 포함)
+      if (line.match(/→/) && line.match(/\*\*(.*?)\*\*/)) {
+        const parts = line.split('→')
+        const termName = parts[0].replace(/\*\*/g, '').trim()
+        const termDesc = parts.slice(1).join('→').trim()
+        
+        sectionContent.push(
+          <div key={`term-${i}`} className="term-box">
+            <div className="term-name">
+              💡 {termName}
+            </div>
+            <div className="term-desc">
+              {termDesc}
+            </div>
+          </div>
+        )
+        continue
+      }
+
+      // 리스트 아이템 (✅, ❗, ❌, 📝, ↑, ↓, → 등)
+      const listMatch = line.match(/^([✅❗❌📝↑↓→-])\s*(.+)/)
+      if (listMatch) {
+        const bullet = listMatch[1]
+        const content = listMatch[2]
+        let itemClass = 'neutral'
+        
+        if (bullet === '✅' || bullet === '↑') itemClass = 'positive'
+        if (bullet === '❗' || bullet === '❌' || bullet === '↓') itemClass = 'negative'
+        
+        sectionContent.push(
+          <div key={`list-${i}`} className={`ai-list-item ${itemClass}`}>
+            <span className="bullet">{bullet}</span>
+            <span>{parseInlineStyles(content)}</span>
+          </div>
+        )
+        continue
+      }
+
+      // 일반 텍스트 (인라인 스타일 적용)
+      if (line) {
+        sectionContent.push(
+          <p key={`text-${i}`}>{parseInlineStyles(line)}</p>
+        )
+      }
+    }
+
+    flushSection()
+    return elements
+  }
+
+  // 인라인 스타일 파싱 (**, 금액, 키워드)
+  const parseInlineStyles = (text) => {
+    const parts = []
+    let lastIndex = 0
+
+    // **키워드** 형식 파싱
+    const boldRegex = /\*\*(.*?)\*\*/g
+    let match
+
+    while ((match = boldRegex.exec(text)) !== null) {
+      // 이전 텍스트 추가
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index))
+      }
+      
+      // 강조 텍스트 추가
+      const keyword = match[1]
+      parts.push(
+        <span key={`keyword-${match.index}`} className="keyword-highlight">
+          {keyword}
+        </span>
+      )
+      
+      lastIndex = match.index + match[0].length
+    }
+
+    // 남은 텍스트 추가
+    if (lastIndex < text.length) {
+      const remaining = text.substring(lastIndex)
+      // 금액 형식 강조 (XX조원, XX억원 등)
+      const amountRegex = /(\d+\.?\d*[조억만]원?)/g
+      let remainingParts = []
+      let lastAmountIndex = 0
+      
+      while ((match = amountRegex.exec(remaining)) !== null) {
+        if (match.index > lastAmountIndex) {
+          remainingParts.push(remaining.substring(lastAmountIndex, match.index))
+        }
+        remainingParts.push(
+          <span key={`amount-${match.index}`} className="keyword-amount">
+            {match[1]}
+          </span>
+        )
+        lastAmountIndex = match.index + match[0].length
+      }
+      
+      if (lastAmountIndex < remaining.length) {
+        remainingParts.push(remaining.substring(lastAmountIndex))
+      }
+      
+      parts.push(...remainingParts)
+    }
+
+    return parts.length > 0 ? parts : text
+  }
+
   useEffect(() => {
     fetchReportCodes()
   }, [])
@@ -463,9 +639,7 @@ function FinancialStatementViewer({ company }) {
             {aiExplanation && (
               <div className="ai-explanation-content">
                 <div className="explanation-text">
-                  {aiExplanation.split('\n').map((line, idx) => (
-                    <p key={idx}>{line}</p>
-                  ))}
+                  {parseAIExplanation(aiExplanation)}
                 </div>
               </div>
             )}
@@ -572,9 +746,7 @@ function FinancialStatementViewer({ company }) {
                 <div className="investment-analysis">
                   <h3>🤖 AI 종합 투자 분석</h3>
                   <div className="analysis-content">
-                    {investmentAnalysis.split('\n').map((line, idx) => (
-                      <p key={idx}>{line}</p>
-                    ))}
+                    {parseAIExplanation(investmentAnalysis)}
                   </div>
                 </div>
               )}
